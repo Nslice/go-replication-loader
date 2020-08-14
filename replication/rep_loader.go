@@ -1,6 +1,6 @@
-package main
+package replication
 
-// ReplicationLoader provides an ability 
+// ReplicationLoader provides an ability
 // to load replication via InnerReplication
 type ReplicationLoader struct {
 	FileLoader

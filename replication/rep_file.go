@@ -1,4 +1,4 @@
-package main
+package replication
 
 import (
 	"errors"
@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/sergeyzalunin/go-replication-loader/argsp"
 )
 
 // FileLoader contains all base behavior to work with replication files,
@@ -16,7 +18,7 @@ type FileLoader struct {
 }
 
 // Init file loader
-func (file *FileLoader) Init(args ArgumentOptions) error {	
+func (file *FileLoader) Init(args argsp.ArgumentOptions) error {
 	dbName := args.DatabaseName
 	if len(strings.TrimSpace(dbName)) == 0 {
 		return errors.New("Database name didn't set in command line. Use -help command")
@@ -27,17 +29,17 @@ func (file *FileLoader) Init(args ArgumentOptions) error {
 	return nil
 }
 
-// GetFiles gets files from the replication 
+// GetFiles gets files from the replication
 // directory by particular pattern: *.rep, *.desc, etc
 func (file *FileLoader) GetFiles(pattern string) []string {
 	pattern = filepath.Join(file.ReplicationDirectory, pattern)
 
-	files, err := filepath.Glob(file.ReplicationDirectory)	
+	files, err := filepath.Glob(pattern)
 	if err != nil {
-		log.Fatalf("An error occured while getting files from directory %v. %v", pattern, err)
+		log.Fatalf("An error occured while getting files from directory %v. %v", file.ReplicationDirectory, err)
 	}
 
-	sort.Slice(files, func(i, j int) bool{
+	sort.Slice(files, func(i, j int) bool {
 		fiBefore := getFileInfo(files[i])
 		fiAfter := getFileInfo(files[j])
 		if fiBefore != nil && fiAfter != nil {
@@ -64,16 +66,16 @@ func setReplicationDirectory(file *FileLoader, dbName string) error {
 		return err
 	}
 
-	file.ReplicationDirectory = filepath.Join(dir, dbName + "Replics")
+	file.ReplicationDirectory = filepath.Join(dir, dbName+"Replics")
 	createDirectory(file.ReplicationDirectory)
 	return nil
 }
 
 func getExecutableDirectory() (string, error) {
 	ex, err := os.Executable()
-    if err != nil {
-        return "", err
-    }
+	if err != nil {
+		return "", err
+	}
 	exPath := filepath.Dir(ex)
 	return exPath, nil
 }
