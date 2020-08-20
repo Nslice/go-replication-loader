@@ -8,12 +8,12 @@ import (
 // Builder serves to construct a process of installing replications
 type Builder struct {
 	loader Loader
-	log    logger.Log
+	log    *logger.Log
 }
 
 // NewLoaderBuilder is a constructor for Builder
-func NewLoaderBuilder(log logger.Log) Builder {
-	return Builder{Loader{}, log}
+func NewLoaderBuilder(log *logger.Log) *Builder {
+	return &Builder{Loader{}, log}
 }
 
 // AddCMS allows to get console monolithic service by its name
@@ -45,7 +45,7 @@ func (b *Builder) Build() Loader {
 	return b.loader
 }
 
-func getService(serviceName string, log logger.Log) (services.IService, error) {
+func getService(serviceName string, log *logger.Log) (services.IService, error) {
 	service := services.NewService(serviceName, log)
 	if err := service.HasService(); err != nil {
 		log.Error(err)

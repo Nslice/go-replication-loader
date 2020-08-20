@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/sergeyzalunin/go-replication-loader/argsp"
 	"github.com/sergeyzalunin/go-replication-loader/loader"
 	"github.com/sergeyzalunin/go-replication-loader/logger"
@@ -8,36 +11,66 @@ import (
 )
 
 func main() {
-	var args argsp.ArgumentOptions
-	var log logger.Log
+	var hasreplications bool
+	var args *argsp.ArgumentOptions
+	var log *logger.Log
 
 	defer func() {
-		sendEmail(args, log, recover())
+		if hasreplications {
+			sendEmail(args, log, recover())
+		}
 	}()
 
-	args = getArguments()
+	args = getArguments(log)
 
 	log = logger.NewLogger(args.ProjectName)
 	defer log.Close()
 
-	err := doInstallation(args, log)
+	hasreplications, err := doInstallation(args, log)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func getArguments() argsp.ArgumentOptions {
-	args := argsp.ArgumentOptions{}
+func getArguments(log *logger.Log) *argsp.ArgumentOptions {
+	args := &argsp.ArgumentOptions{}
 	args.Init()
+
+	prjname, saveArgs, readSavedArgs, interactive := args.ProjectName, args.SaveArgs, args.ReadSavedArgs, args.UseInteractive
+
+	savedArguments := argsp.ReadArguments(log)
+	if !savedArguments.IsEmpty() {
+		args = savedArguments
+		args.UseInteractive = interactive
+		args.ProjectName = prjname
+		args.SaveArgs = saveArgs
+		args.ReadSavedArgs = readSavedArgs
+	}	
+	
+	args = argsp.StartInteractiveMode(args, log)
+
+	if readSavedArgs {
+		prettyPrint(args)
+	}
+
 	return args
 }
 
-func doInstallation(args argsp.ArgumentOptions, log logger.Log) error {
-	l := loader.NewLoader(args, log)
-	err := l.Load()
-	return err
+func prettyPrint(data interface{}) {
+	var p []byte
+	p, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%s \n", p)
 }
-func sendEmail(args argsp.ArgumentOptions, log logger.Log, err interface{}) {
+
+func doInstallation(args *argsp.ArgumentOptions, log *logger.Log) (bool, error) {
+	l := loader.NewLoader(args, log)
+	return l.Load()
+}
+func sendEmail(args *argsp.ArgumentOptions, log *logger.Log, err interface{}) {
 	e := message.New(args, log)
 	if err == nil {
 		e.Send()

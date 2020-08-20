@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/go-errors/errors"
+
 	mssql "github.com/denisenkom/go-mssqldb"
 	"github.com/sergeyzalunin/go-replication-loader/argsp"
 	"github.com/sergeyzalunin/go-replication-loader/logger"
 )
 
 // DoBackup create an backup of target database provided via ArgumentOptions
-func DoBackup(args argsp.ArgumentOptions, log logger.Log) {
+func DoBackup(args *argsp.ArgumentOptions, log *logger.Log) {
 	backupState := "with error"
 	log.Info("Backup of database ", args.DatabaseName, " started")
 	defer func() {
@@ -23,12 +25,12 @@ func DoBackup(args argsp.ArgumentOptions, log logger.Log) {
 		backupState = "successfully"
 	} else {
 		msg := "You are not allowed to continue installation a replication without successful backup"
-		log.Fatal(msg)
+		log.Fatal(errors.Errorf(msg))
 		panic(msg)
 	}
 }
 
-func doBackup(args argsp.ArgumentOptions, log logger.Log) error {
+func doBackup(args *argsp.ArgumentOptions, log *logger.Log) error {
 	connString, err := getConnection(args)
 	if err != nil {
 		return err
@@ -48,7 +50,7 @@ func doBackup(args argsp.ArgumentOptions, log logger.Log) error {
 	return err
 }
 
-func getConnection(args argsp.ArgumentOptions) (string, error) {
+func getConnection(args *argsp.ArgumentOptions) (string, error) {
 	if args.DatabaseName == "" {
 		err := "The database name doesn't set in command line. Use -dbname or -help command"
 		return "", fmt.Errorf(err)
@@ -57,7 +59,7 @@ func getConnection(args argsp.ArgumentOptions) (string, error) {
 	return connectionString, nil
 }
 
-func getBackupCommand(args argsp.ArgumentOptions, log logger.Log) string {
+func getBackupCommand(args *argsp.ArgumentOptions, log *logger.Log) string {
 	filename := filepath.Join(args.BackupPath, args.DatabaseName+"_ReplicLoaderAutobackup.bak")
 	log.Info("Backup will be saved at the path ", filename)
 

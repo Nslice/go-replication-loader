@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-errors/errors"
+
 	"github.com/jordan-wright/email"
 	"github.com/sergeyzalunin/go-replication-loader/argsp"
 	"github.com/sergeyzalunin/go-replication-loader/logger"
@@ -16,16 +18,16 @@ import (
 
 // EmailMessage sends email by using inputs via ArgumentOptions
 type EmailMessage struct {
-	logger                logger.Log
-	args                  argsp.ArgumentOptions
+	log                   *logger.Log
+	args                  *argsp.ArgumentOptions
 	deleteDescriptionFile bool
 }
 
 // New is a constructor for EmailMessageType
-func New(args argsp.ArgumentOptions, logger logger.Log) EmailMessage {
+func New(args *argsp.ArgumentOptions, logger *logger.Log) EmailMessage {
 	e := EmailMessage{
-		args:   args,
-		logger: logger,
+		args: args,
+		log:  logger,
 	}
 	return e
 }
@@ -43,7 +45,7 @@ func (em *EmailMessage) SendFailed(err interface{}) {
 }
 
 func (em EmailMessage) send(err error) {
-	if hasAnyEmailCommandLineParameters(em.args) {
+	if em.hasAnyEmailCommandLineParameters() {
 		var e *email.Email
 
 		if err == nil {
@@ -54,16 +56,17 @@ func (em EmailMessage) send(err error) {
 
 		err = em.sendWithTLS(e)
 		if err != nil {
+			em.log.Fatal(err)
 			panic(err)
 		}
 	}
 }
 
-func hasAnyEmailCommandLineParameters(args argsp.ArgumentOptions) bool {
-	result := strings.TrimSpace(args.SMTPServer) == "" ||
-		strings.TrimSpace(args.SMTPLogin) == "" ||
-		strings.TrimSpace(args.From) == "" ||
-		hasAnyEmptyEmail(args.ToEmailList)
+func (em EmailMessage) hasAnyEmailCommandLineParameters() bool {
+	result := strings.TrimSpace(em.args.SMTPServer) == "" ||
+		strings.TrimSpace(em.args.SMTPLogin) == "" ||
+		strings.TrimSpace(em.args.From) == "" ||
+		hasAnyEmptyEmail(em.args.ToEmailList)
 
 	return !result
 }
@@ -90,9 +93,9 @@ func (em EmailMessage) getEmail() *email.Email {
 		Text:    em.getMessageBody(),
 		Headers: textproto.MIMEHeader{},
 	}
-	_, err := e.AttachFile(em.logger.GetFileName())
+	_, err := e.AttachFile(em.log.GetFileName())
 	if err != nil {
-		em.logger.Error("Couldn't attach log file due to error", err)
+		em.log.Error(errors.New(err), "Couldn't attach log file due to error")
 	}
 
 	return &e
@@ -122,6 +125,7 @@ func (em EmailMessage) getErrorSubject() string {
 
 func (em EmailMessage) getMessageBody() []byte {
 	loader := rep.DescriptionLoader{}
+	loader.Init(em.args.DatabaseName, em.log)
 	desc := loader.GetDescriptionContent(em.deleteDescriptionFile)
 	result := fmt.Sprintf("%s\n\n%s", em.args.Body, desc)
 	return []byte(result)
