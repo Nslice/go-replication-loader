@@ -22,12 +22,12 @@ type IService interface {
 
 // ServiceWorker is a handler to work with windows services
 type ServiceWorker struct {
-	log         logger.Log
+	log         *logger.Log
 	ServiceName string
 }
 
 // NewService is a constructor to get IService
-func NewService(serviceName string, log logger.Log) IService {
+func NewService(serviceName string, log *logger.Log) IService {
 	return ServiceWorker{log, serviceName}
 }
 

@@ -14,31 +14,36 @@ import (
 
 // Loader is a container that has instances to load replications
 type Loader struct {
-	log            logger.Log
-	args           argsp.ArgumentOptions
-	repl           replication.ReplicationLoader
+	log            *logger.Log
+	args           *argsp.ArgumentOptions
+	repl           *replication.ReplicationLoader
+	executor       *ProcessExecutor
 	consoleService services.IService
 	netpipeService services.IService
-	executor       ProcessExecutor
 }
 
 // NewLoader is a constructor to create a new Loader struct
-func NewLoader(args argsp.ArgumentOptions, log logger.Log) *Loader {
-	repl := replication.ReplicationLoader{}
-	repl.Init(args)
+func NewLoader(args *argsp.ArgumentOptions, log *logger.Log) *Loader {
+	repl := &replication.ReplicationLoader{}
+	err := repl.Init(args.DatabaseName, log)
+	if err != nil {
+		log.Error(err)
+	}
 
+	executor := NewProcessExecutor(args.WorkingDirectory, log)
 	console := services.NewService(args.ConsoleServiceName, log)
 	netpipe := services.NewService(args.NetPipeServiceName, log)
-	executor := NewProcessExecutor(args, log)
 
-	return &Loader{log, args, repl, console, netpipe, executor}
+	return &Loader{log, args, repl, executor, console, netpipe}
 }
 
 // Load starts the process of loading
-func (l *Loader) Load() error {
+func (l *Loader) Load() (bool, error) {
+	hasReplications := false
 	replicationFiles := l.repl.GetReplicationFiles()
 
 	if len(replicationFiles) > 0 {
+		hasReplications = true
 		l.preloadingProcess()
 
 		for _, rep := range replicationFiles {
@@ -51,13 +56,13 @@ func (l *Loader) Load() error {
 				l.log.Info("The replication file ", rep, " was deleted from folder")
 			} else {
 				msg := fmt.Sprintf("Failed to remove a replication file %s\n", rep)
-				l.log.Error(msg, err)
+				l.log.Error(err, msg)
 			}
 		}
 
 		l.postloadingProcesses()
 	}
-	return nil
+	return hasReplications, nil
 }
 
 func (l *Loader) preloadingProcess() {
@@ -69,15 +74,15 @@ func (l *Loader) preloadingProcess() {
 	err = l.consoleService.StopService()
 	if err != nil {
 		msg := "Failed to stop the console monolithic service"
-		l.log.Fatal(msg)
+		l.log.Fatal(err, msg)
 		panic(msg)
 	}
 
 	mssql.DoBackup(l.args, l.log)
 	err = l.consoleService.StartService()
 	if err != nil {
-		msg := "Failed to start the console monolithic service\n"
-		l.log.Fatal(msg, err)
+		msg := "Failed to start the console monolithic service"
+		l.log.Fatal(err, msg)
 		panic(msg)
 	}
 }

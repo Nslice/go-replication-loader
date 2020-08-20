@@ -12,13 +12,20 @@
             "program": "${workspaceRoot}",
             "env": {},
             "args": ["-prjName", "Testing Client",
-                "-c", "CMS_TestingClient",
+                "-c", "CMS_Project",
                 "-d", "H:\\eLeed\\eLeed",
                 "-u", "admin",
+                "-t", "sergey.zalunin@akforta.com",
+                "-f", "sergey.zalunin@akforta.com",
+                "-smtp", "mail.akforta.com",
+                "-smtplogin", "sergey.zalunin",
+                "-smtppass", "123",
                 "-dbname", "Eleed_Head_Origin",
                 "-backuppath", "C:\\drive",
                 "-dbuserid", "sa",
-                "-dbpassword", "WTF_MR_JOE$75"]
+                "-dbpassword", "WTF_MR_JOE$75",
+                "-rsd",
+                "-interactive"]
         }
     ]
 }

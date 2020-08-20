@@ -6,25 +6,24 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/sergeyzalunin/go-replication-loader/argsp"
 	"github.com/sergeyzalunin/go-replication-loader/logger"
 )
 
 // ProcessExecutor is a struct that allows to run processes
 type ProcessExecutor struct {
-	log                      logger.Log
+	log                      *logger.Log
 	PathToAdminToolsConsole  string
 	PathToCompilationPluting string
 	dir                      string
 }
 
 // NewProcessExecutor is a ProcessExecutor factory
-func NewProcessExecutor(args argsp.ArgumentOptions, log logger.Log) ProcessExecutor {
-	return ProcessExecutor{
+func NewProcessExecutor(workingDirectory string, log *logger.Log) *ProcessExecutor {
+	return &ProcessExecutor{
 		log,
-		filepath.Join(args.WorkingDirectory, "Akforta.eLeed.AdminToolsConsole.exe"),
-		filepath.Join(args.WorkingDirectory, "BIZ.Compiler.exe"),
-		args.WorkingDirectory,
+		filepath.Join(workingDirectory, "Akforta.eLeed.AdminToolsConsole.exe"),
+		filepath.Join(workingDirectory, "BIZ.Compiler.exe"),
+		workingDirectory,
 	}
 }
 
@@ -76,7 +75,7 @@ func (p *ProcessExecutor) logProcess(output []byte, cmd *exec.Cmd, err error) {
 func (p *ProcessExecutor) eleedSpecificCheckings(filename string, exitCode int) {
 	msg := fmt.Sprintf("The execution of the programm %s was completed with code %d", filename, exitCode)
 	if filename == p.PathToCompilationPluting && exitCode != 0 {
-		p.log.Error(msg)
+		p.log.Error(fmt.Errorf(msg))
 	} else {
 		p.log.Info(msg)
 	}

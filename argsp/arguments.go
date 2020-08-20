@@ -2,6 +2,7 @@ package argsp
 
 import (
 	"flag"
+	"reflect"
 )
 
 type stringSlice []string
@@ -30,7 +31,6 @@ type ArgumentOptions struct {
 	ToEmailList  stringSlice
 	Body         string
 	From         string
-	Subject      string
 	SMTPServer   string
 	SMTPPort     int
 	SMTPLogin    string
@@ -45,6 +45,17 @@ type ArgumentOptions struct {
 	UseCompression    bool
 	TrustedConnection bool
 	ConnectionTimeout int
+
+	// interactive mode
+	UseInteractive bool
+	SaveArgs       bool
+	ReadSavedArgs  bool
+}
+
+// IsEmpty checks current arguments has default state without any data
+func (args ArgumentOptions) IsEmpty() bool {
+	empty := ArgumentOptions{}
+	return reflect.DeepEqual(args, empty)
 }
 
 // Init initializes argument flags
@@ -62,8 +73,7 @@ func (args *ArgumentOptions) Init() {
 	flag.Var(&args.ToEmailList, "t", "List of emails which will send message")
 	flag.StringVar(&args.Body, "b", "See the attached log file for details", "Message body")
 	flag.StringVar(&args.From, "f", "sergey.zalunin@akforta.com", "From email")
-	flag.StringVar(&args.Subject, "s", "", "Subject of email")
-	flag.StringVar(&args.SMTPServer, "smtp", "akforta.com", "address of SMTP server")
+	flag.StringVar(&args.SMTPServer, "smtp", "mail.akforta.com", "address of SMTP server")
 	flag.IntVar(&args.SMTPPort, "port", 465, "Port of SMTP server")
 	flag.StringVar(&args.SMTPLogin, "smtplogin", "", "Login to SMTP server")
 	flag.StringVar(&args.SMTPPassword, "smtppass", "", "Password to SMTP server")
@@ -78,6 +88,14 @@ func (args *ArgumentOptions) Init() {
 	flag.BoolVar(&args.TrustedConnection, "dbtrust", false, "Database allows trusted connection")
 	flag.IntVar(&args.ConnectionTimeout, "dbtimeout", 7200, "Connection timeout to mssql")
 
+	// interactive mode
+	flag.BoolVar(&args.UseInteractive, "interactive", false,
+		"Call the process to set up arguments settings in the console. "+
+			"All entered values will store in the file which reads on starting this program")
+	flag.BoolVar(&args.SaveArgs, "saveargs", false,
+		"Saving entered arguments in the file which reads on starting this programm")
+	flag.BoolVar(&args.ReadSavedArgs, "rsd", false,
+		"Reading saving arguments from the data.dat file")
+
 	flag.Parse()
-	//flag.PrintDefaults()
 }

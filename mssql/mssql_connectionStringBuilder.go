@@ -8,7 +8,7 @@ import (
 )
 
 // NewConnectionString is a method factory to construct connection string
-func NewConnectionString(args argsp.ArgumentOptions) string {
+func NewConnectionString(args *argsp.ArgumentOptions) string {
 	conn := &connectionStringBuilder{[]string{}}
 	result := conn.server(args.DbDataSource).
 		database(args.DatabaseName).

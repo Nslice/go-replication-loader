@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"github.com/go-errors/errors"
 )
 
 // Log is the base structure for logging
@@ -17,14 +18,18 @@ type Log struct {
 }
 
 // NewLogger is the default constructor to create logger
-func NewLogger(projectName string) Log {
+func NewLogger(projectName string) *Log {
+	if strings.TrimSpace(projectName) == "" {
+		panic("The project name has to be set in arguments.")
+	}
+
 	logger := Log{
 		logFile: getFileName(projectName),
 		ch:      make(chan string, 5),
 		wg:      &sync.WaitGroup{},
 	}
 	go logger.write()
-	return logger
+	return &logger
 }
 
 // GetFileName returns a filename where logger writes info
@@ -74,21 +79,29 @@ func (l Log) Info(message ...interface{}) {
 }
 
 // Error writes error messages
-func (l Log) Error(message ...interface{}) {
-	l.log(Error, message...)
+func (l Log) Error(err error, message ...interface{}) {
+	if len(message) > 0 {
+		l.log(Error, message...)
+	}
+	l.log(Error, errors.Wrap(err, 1).ErrorStack())
 }
 
 // LogIfError writes error message if err not nil
 func (l Log) LogIfError(err error, message ...interface{}) {
 	if err != nil {
-		l.log(Error, message...)
-		l.log(Error, err)
+		if len(message) > 0 {
+			l.log(Error, message...)
+		}
+		l.log(Error, errors.Wrap(err, 1).ErrorStack())
 	}
 }
 
 // Fatal writes fatal messages
-func (l Log) Fatal(message ...interface{}) {
-	l.log(Fatal, message...)
+func (l Log) Fatal(err error, message ...interface{}) {
+	if len(message) > 0 {
+		l.log(Fatal, message...)
+	}
+	l.log(Fatal, errors.Wrap(err, 1).ErrorStack())
 }
 
 func (l Log) log(level Level, message ...interface{}) {
