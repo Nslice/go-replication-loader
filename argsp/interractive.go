@@ -32,7 +32,7 @@ func StartInteractiveMode(inArgs *ArgumentOptions, log *logger.Log) *ArgumentOpt
 // SaveArguments in the file. Expected that arguments passed via flag package
 func SaveArguments(inArgs *ArgumentOptions, log *logger.Log) {
 	if !inArgs.SaveArgs {
-		return 
+		return
 	}
 
 	args := deepCopy(inArgs, log)
@@ -68,6 +68,7 @@ func switchOfUnecessaryAttributes(args *ArgumentOptions) {
 	args.UseInteractive = false
 	args.SaveArgs = false
 	args.ReadSavedArgs = false
+	args.SkipBackup = false
 }
 
 func startMode(args *ArgumentOptions, log *logger.Log) {

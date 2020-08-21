@@ -14,6 +14,11 @@ import (
 
 // DoBackup create an backup of target database provided via ArgumentOptions
 func DoBackup(args *argsp.ArgumentOptions, log *logger.Log) {
+	if args.SkipBackup {
+		log.Info("Backup of database skipped due to skipbackup flag")
+		return
+	}
+
 	backupState := "with error"
 	log.Info("Backup of database ", args.DatabaseName, " started")
 	defer func() {
