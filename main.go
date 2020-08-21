@@ -36,7 +36,8 @@ func getArguments(log *logger.Log) *argsp.ArgumentOptions {
 	args := &argsp.ArgumentOptions{}
 	args.Init()
 
-	prjname, saveArgs, readSavedArgs, interactive := args.ProjectName, args.SaveArgs, args.ReadSavedArgs, args.UseInteractive
+	prjname, saveArgs, readSavedArgs := args.ProjectName, args.SaveArgs, args.ReadSavedArgs
+	interactive, skipBackup := args.UseInteractive, args.SkipBackup
 
 	savedArguments := argsp.ReadArguments(log)
 	if !savedArguments.IsEmpty() {
@@ -45,6 +46,7 @@ func getArguments(log *logger.Log) *argsp.ArgumentOptions {
 		args.ProjectName = prjname
 		args.SaveArgs = saveArgs
 		args.ReadSavedArgs = readSavedArgs
+		args.SkipBackup = skipBackup
 	}	
 	
 	args = argsp.StartInteractiveMode(args, log)

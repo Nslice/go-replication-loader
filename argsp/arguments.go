@@ -45,6 +45,10 @@ type ArgumentOptions struct {
 	UseCompression    bool
 	TrustedConnection bool
 	ConnectionTimeout int
+	// SkipBackup added to skip backup of the second installation.
+	// E.g the first installation was failed.
+	// So it is not necessary to make backup from brocken database
+	SkipBackup bool
 
 	// interactive mode
 	UseInteractive bool
@@ -87,6 +91,9 @@ func (args *ArgumentOptions) Init() {
 	flag.BoolVar(&args.UseCompression, "usecompr", false, "Use compression on backup database")
 	flag.BoolVar(&args.TrustedConnection, "dbtrust", false, "Database allows trusted connection")
 	flag.IntVar(&args.ConnectionTimeout, "dbtimeout", 7200, "Connection timeout to mssql")
+	flag.BoolVar(&args.SkipBackup, "skipbackup", false, "SkipBackup added to skip backup of the second installation. "+
+		"E.g the first installation was failed. "+
+		"So it is not necessary to make backup from brocken database")
 
 	// interactive mode
 	flag.BoolVar(&args.UseInteractive, "interactive", false,
