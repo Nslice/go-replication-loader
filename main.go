@@ -47,9 +47,10 @@ func getArguments(log *logger.Log) *argsp.ArgumentOptions {
 		args.SaveArgs = saveArgs
 		args.ReadSavedArgs = readSavedArgs
 		args.SkipBackup = skipBackup
-	}	
+	}
 	
 	args = argsp.StartInteractiveMode(args, log)
+	argsp.SaveArguments(args, log)
 
 	if readSavedArgs {
 		prettyPrint(args)

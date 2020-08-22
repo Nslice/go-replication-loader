@@ -12,6 +12,7 @@ func (str *stringSlice) String() string {
 }
 
 func (str *stringSlice) Set(value string) error {
+	println(value)
 	*str = append(*str, value)
 	return nil
 }
@@ -74,7 +75,7 @@ func (args *ArgumentOptions) Init() {
 	flag.StringVar(&args.Password, "p", "", "Password for user")
 
 	// mailing flags
-	flag.Var(&args.ToEmailList, "t", "List of emails which will send message")
+	flag.Var(&args.ToEmailList, "t", "List of emails which the message will be send. Each email must start with '-t' flag")
 	flag.StringVar(&args.Body, "b", "See the attached log file for details", "Message body")
 	flag.StringVar(&args.From, "f", "sergey.zalunin@akforta.com", "From email")
 	flag.StringVar(&args.SMTPServer, "smtp", "mail.akforta.com", "address of SMTP server")

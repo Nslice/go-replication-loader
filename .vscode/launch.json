@@ -15,7 +15,7 @@
                 "-c", "CMS_Project",
                 "-d", "H:\\eLeed\\eLeed",
                 "-u", "admin",
-                "-t", "sergey.zalunin@akforta.com",
+                "-t", "sergey.zalunin@akforta.com", "-t", "olesya.mezger@akforta.com", "-t", "ritika@screen.ae", "-t", "kallidus@akforta.com", "-t", "dhivakar@screen.ae","-t",  "surbhi@screen.ae", "-t", "talgat.tairov@akforta.com",
                 "-f", "sergey.zalunin@akforta.com",
                 "-smtp", "mail.akforta.com",
                 "-smtplogin", "sergey.zalunin",
@@ -25,7 +25,7 @@
                 "-dbuserid", "sa",
                 "-dbpassword", "WTF_MR_JOE$75",
                 "-rsd",
-                "-interactive"]
+                "-saveargs"]
         }
     ]
 }
