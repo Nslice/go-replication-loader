@@ -116,5 +116,5 @@ func getErrorMessage(err error) string {
 func getMessage(level Level, message ...interface{}) string {
 	currentTime := time.Now().Format(time.RFC3339)
 	str := fmt.Sprint(message...)
-	return fmt.Sprintf("%s [%s]: %s\n", currentTime, level, str)
+	return fmt.Sprintf("%s [%s]: %s\r\n", currentTime, level, str)
 }

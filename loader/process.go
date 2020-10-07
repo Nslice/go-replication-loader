@@ -45,8 +45,9 @@ func (p *ProcessExecutor) run(filename string, args string) {
 		// Akforta.eLeed.AdminToolsConsole.exe can't handle escaped arguments
 		cmd.SysProcAttr = &syscall.SysProcAttr{
 			HideWindow: true,
-			CmdLine:    filename + args,
+			CmdLine: fmt.Sprintf(`"%s" %s`,  filename, args),
 		}
+		p.log.Info(cmd.SysProcAttr.CmdLine)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			p.logProcess(output, cmd, err)

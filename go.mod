@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/jordan-wright/email v0.0.0-20200602115436-fd8a7622303e
 	github.com/sirupsen/logrus v1.6.0
-	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae
+	golang.org/x/tools v0.0.0-20200821200730-1e23e48ab93b // indirect
 )
