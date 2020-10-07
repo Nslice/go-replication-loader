@@ -24,13 +24,13 @@ func DoBackup(args *argsp.ArgumentOptions, log *logger.Log) {
 	defer func() {
 		log.Info("Backup of database ", args.DatabaseName, " finished ", backupState)
 	}()
-
+// Unable to get instances from Sql Server Browser on host localhost: read udp [::1]:54097->[::1]:1434: i/o timeout
 	err := doBackup(args, log)
 	if err == nil {
 		backupState = "successfully"
 	} else {
-		msg := "You are not allowed to continue installation a replication without successful backup"
-		log.Fatal(errors.Errorf(msg))
+		msg := "You are not allowed to continue installation a replication without successful backup \r\n%s"
+		log.Fatal(errors.Errorf(msg, err))
 		panic(msg)
 	}
 }

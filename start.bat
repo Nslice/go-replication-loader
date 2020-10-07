@@ -1,4 +1,4 @@
-go build
+go build -ldflags "-s -w"
 
 go-replication-loader -prjName "Testing Client" ^
 -c CMS_TestingClient ^
